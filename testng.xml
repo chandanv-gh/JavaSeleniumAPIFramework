@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="TestProject" data-provider-thread-count="3">
+    <test name="Test1">
+        <classes>
+            <class name="com.testvagrant.executor.Test1Runner"/>
+        </classes>
+    </test>
+    <test name="Test2">
+        <classes>
+            <class name="com.testvagrant.executor.Test2Runner"/>
+        </classes>
+    </test>
+</suite>

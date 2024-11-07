@@ -1,0 +1,59 @@
+{
+  "Home":[
+    "About Us",
+    "Services",
+    "Products",
+    "Locations",
+    "Admin Page",
+    "Forum",
+    "Site Map",
+    "Contact Us"
+  ],
+  "TestCases":{
+    "SuccessfulRegistration":"Y",
+    "RegistrationWithBlankFields":"Y",
+    "SuccessfulLogin":"Y",
+    "LoginWithEmptyFields":"Y",
+    "Home":"Y"
+  },
+  "common_properties":{
+    "Automation Exercise":"https://automationexercise.com/"
+  },
+  "registration":{
+    "Address":"TestAdd",
+    "City":"Bangalore",
+    "First Name":"TestAbc",
+    "Last Name":"TestXyz",
+    "Password":"bca5c38d",
+    "Phone":"123456789",
+    "SSN":"756",
+    "State":"Karnataka",
+    "Username":"49ffd11f-7",
+    "Zip Code":"560003"
+  },
+  "xpath":{
+    "API2":"//u[text()='API 2: POST To All Products List']",
+    "API4":"//u[text()='API 4: PUT To All Brands List']",
+    "API9": "//u[text()='API 9: DELETE To Verify Login']",
+    "API1": "//u[text()='API 1: Get All Products List']",
+    "API6": "//u[text()='API 6: POST To Search Product without search_product parameter']",
+    "Confirm Password":"//input[@name\u003d\u0027repeatedPassword\u0027]",
+    "First Name":"//input[@name\u003d\u0027customer.firstName\u0027]",
+    "Last Name":"//input[@name\u003d\u0027customer.lastName\u0027]",
+    "Log In":"//input[@value\u003d\u0027Log In\u0027]",
+    "Password":"//input[@name\u003d\u0027customer.password\u0027]",
+    "Phone":"//input[@name\u003d\u0027customer.phoneNumber\u0027]",
+    "Register":"//input[@value\u003d\u0027Register\u0027]",
+    "SSN":"//input[@name\u003d\u0027customer.ssn\u0027]",
+    "State":"//input[@name\u003d\u0027customer.address.state\u0027]",
+    "Username":"//input[@name\u003d\u0027customer.username\u0027]",
+    "Zip Code":"//input[@name\u003d\u0027customer.address.zipCode\u0027]",
+    "blankError":"//p[text()\u003d\u0027Please enter a username and password.\u0027]",
+    "error":"//p[@class\u003d\u0027error\u0027]",
+    "password":"//input[@name\u003d\u0027password\u0027]",
+    "success":"//p[text()\u003d\u0027Your account was created successfully. You are now logged in.\u0027]",
+    "useralreadyregistered":"//span[text()\u003d\u0027This username already exists.\u0027]",
+    "username":"//input[@name\u003d\u0027username\u0027]",
+    "welcome":"//p[@class\u003d\u0027smallText\u0027]"
+  }
+}

@@ -34,7 +34,7 @@ public class StepDefinition {
     public void i_click_on_the_from_the_list_and_validate_the_response_of_request(String api, String requestType) throws Exception {
         String request = appGenFunc.clickOnButton(df.getXpath(api));
         appGenFunc.captureData(request);
-        switch(request) {
+        switch(requestType) {
             case "Get":
                 appGenFunc.getRequest();
                 break;
@@ -42,6 +42,11 @@ public class StepDefinition {
                 appGenFunc.postRequest();
                 break;
         }
+    }
+
+    @Then("I capture all the Product details")
+    public void i_capture_all_the_product_details() {
+        appGenFunc.captureProductDetails();
     }
 
     @When("I click on the {string} link")

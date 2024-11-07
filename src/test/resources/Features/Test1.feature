@@ -6,6 +6,7 @@ Feature: Registration
   Scenario: Verify API Documentation
     Given I am on the "Automation Exercise" homepage
     When I click on the "Products" link
+    Then I capture all the Product details
     When I click on the "API Testing" link
     Then I click on the "API2" from the list and validate the response of "Post" request
     Then I click on the "API4" from the list and validate the response of "Put" request

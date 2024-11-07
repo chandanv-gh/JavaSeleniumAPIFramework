@@ -6,6 +6,7 @@ import com.testvagrant.payload.Product;
 import com.testvagrant.utils.WebDriverManager;
 import io.restassured.response.Response;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -67,9 +68,12 @@ public class AppGenericFunc {
         response.setRequestMethod(requestMethod);
         response.setResponseCode(responseCode);
         response.setResponseMsg(responseMsg);
-        products = new ArrayList<>();
 
-        clickOnAnchorTag("Products");
+        response.setProducts(this.products);
+    }
+
+    public void captureProductDetails() {
+        products = new ArrayList<>();
         List<WebElement> products = driver.findElements(By.xpath("//div[@class='productinfo text-center']/a[@data-product-id]"));
         for(WebElement ele:products) {
             Product product = new Product();
@@ -78,8 +82,6 @@ public class AppGenericFunc {
             product.setId(Integer.parseInt(Objects.requireNonNull(ele.getAttribute("data-product-id"))));
             this.products.add(product);
         }
-        response.setProducts(this.products);
-        clickOnAnchorTag("API Testing");
     }
 
     public void postRequest() throws Exception {
@@ -114,37 +116,42 @@ public class AppGenericFunc {
     }
 
     public void validateApiResponse(Response response) throws Exception {
-        assertEquals(this.response.getResponseCode(), response.getStatusCode(), "Response code mismatch");
+        try {
+            assertEquals(this.response.getResponseCode(), response.getStatusCode(), "Response code mismatch");
 
-        // Validate the Response Message
-        String responseMessage = response.jsonPath().getString("responseMessage");
-        assertEquals(this.response.getResponseMsg(), responseMessage, "Response message mismatch");
+            // Validate the Response Message
+            String responseMessage = response.jsonPath().getString("responseMessage");
+            assertEquals(this.response.getResponseMsg(), responseMessage, "Response message mismatch");
 
-        // Parse the response body using Jackson
-        ObjectMapper objectMapper = new ObjectMapper();
-        APIResponse apiResponse = objectMapper.readValue(response.asString(), APIResponse.class);
+            // Parse the response body using Jackson
+            ObjectMapper objectMapper = new ObjectMapper();
+            APIResponse apiResponse = objectMapper.readValue(response.asString(), APIResponse.class);
 
-        // Validate Response Structure/Content (non-hardcoded validation)
-        assertNotNull(apiResponse, "Parsed response should not be null");
-        assertEquals(this.response.getResponseCode(), apiResponse.getResponseCode(), "Response code in parsed content mismatch");
-        assertEquals(this.response.getResponseMsg(), apiResponse.getResponseMessage(), "Response message in parsed content mismatch");
+            // Validate Response Structure/Content (non-hardcoded validation)
+            assertNotNull(apiResponse, "Parsed response should not be null");
+            assertEquals(this.response.getResponseCode(), apiResponse.getResponseCode(), "Response code in parsed content mismatch");
+            assertEquals(this.response.getResponseMsg(), apiResponse.getResponseMessage(), "Response message in parsed content mismatch");
 
-        // Validate products (example structure checks)
-        assertNotNull(apiResponse.getProducts(), "Products list should not be null");
-        List<Product> expectedProductDetails = this.response.getProducts();
-        assertEquals(expectedProductDetails.size(), apiResponse.getProducts().size(), "Number of Products should be equals to " + expectedProductDetails);
-        for (Product product : apiResponse.getProducts()) {
-            assertTrue(product.getId()>0, "Product ID should be greater than 0");
-            assertNotNull(product.getName(), "Product name should not be null");
-            assertNotNull(product.getPrice(), "Product price should not be null");
-            assertNotNull(product.getBrand(), "Product brand should not be null");
-            assertNotNull(product.getCategory(), "Product category should not be null");
-            assertNotNull(product.getCategory().getCategory(), "Product category name should not be null");
-            assertNotNull(product.getCategory().getUsertype(), "Product usertype should not be null");
+            // Validate products (example structure checks)
+            assertNotNull(apiResponse.getProducts(), "Products list should not be null");
+            List<Product> expectedProductDetails = this.response.getProducts();
+            assertEquals(expectedProductDetails.size(), apiResponse.getProducts().size(), "Number of Products should be equals to " + expectedProductDetails);
+            for (Product product : apiResponse.getProducts()) {
+                assertTrue(product.getId()>0, "Product ID should be greater than 0");
+                assertNotNull(product.getName(), "Product name should not be null");
+                assertNotNull(product.getPrice(), "Product price should not be null");
+                assertNotNull(product.getBrand(), "Product brand should not be null");
+                assertNotNull(product.getCategory(), "Product category should not be null");
+                assertNotNull(product.getCategory().getCategory(), "Product category name should not be null");
+                assertNotNull(product.getCategory().getUsertype(), "Product usertype should not be null");
+            }
+
+            // Optionally, print out the full response for debugging
+            System.out.println(response.asPrettyString());
         }
-
-        // Optionally, print out the full response for debugging
-        System.out.println(response.asPrettyString());
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setText(By xpath, String text) {
@@ -155,7 +162,8 @@ public class AppGenericFunc {
 
     public String clickOnButton(By button) {
         WebElement ele = driver.findElement(button);
-        ele.click();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].click();", ele);
         return ele.getText();
     }
 

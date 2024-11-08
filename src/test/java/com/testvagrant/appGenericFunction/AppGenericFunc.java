@@ -9,6 +9,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -46,14 +47,26 @@ public class AppGenericFunc {
 
     public void clickOnAnchorTag(String text) {
         By xpath = By.xpath("//a[contains(text(),'"+text+"')]");
-        wait.until(ExpectedConditions.elementToBeClickable(xpath));
-        driver.findElement(xpath).click();
+        WebElement ele = wait.until(ExpectedConditions.elementToBeClickable(xpath));
+        highlightElement(ele);
+        ele.click();
+    }
+
+    public void visibilityOfMultipleElements(int count, By xpath) {
+        try {
+            List<WebElement> elements = driver.findElements(xpath);
+            assertEquals(elements.size(), count, "Element count should match");
+        }
+        catch (AssertionError e) {
+            System.out.println(e);
+        }
     }
 
     public String getText(By xpath) {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         WebElement ele = wait.until(ExpectedConditions.visibilityOfElementLocated(xpath));
         js.executeScript("arguments[0].scrollIntoView(true);", ele);
+        highlightElement(ele);
         return ele.getText();
     }
 
@@ -88,7 +101,7 @@ public class AppGenericFunc {
         }
     }
 
-    public void postRequest() throws Exception {
+    public Response postRequest() throws Exception {
         Product product = new Product();
         // Set product fields
         product.setId(1);
@@ -110,24 +123,53 @@ public class AppGenericFunc {
         // Set category in product
         product.setCategory(category);
         Response response = productEndpoint.createProduct(this.response.getRequestURL(), product);
-        validateApiResponse(response);
-
+        return response;
     }
 
-    public void getRequest() throws Exception {
+    public Response getRequest() throws Exception {
         Response response = productEndpoint.getProductDetails(this.response.getRequestURL());
-        validateApiResponse(response);
+        return response;
+    }
+
+    public Response deleteRequest() throws Exception {
+        Response response = productEndpoint.deleteProduct(this.response.getRequestURL());
+        return response;
+    }
+
+    public Response putRequest() {
+        Product product = new Product();
+        // Set product fields
+        product.setId(1);
+        product.setName("Blue Top");
+        product.setPrice("Rs. 500");
+        product.setBrand("Polo");
+
+        // Create and set category
+        Product.Category category = new Product.Category();
+        category.setCategory("Tops");
+
+        // Create and set usertype
+        Product.UserType userType = new Product.UserType();
+        userType.setUsertype("Women");
+
+        // Set usertype in category
+        category.setUsertype(userType);
+
+        // Set category in product
+        product.setCategory(category);
+        Response response = productEndpoint.updateProductDetails(this.response.getRequestURL(), product);
+        return response;
     }
 
     public void validateApiResponse(Response response) throws Exception {
         try {
-            assertEquals(this.response.getResponseCode(), response.getStatusCode(), "Response code mismatch");
+            assertEquals(response.getStatusCode(), this.response.getResponseCode(), "Response code mismatch");
 
             // Validate the Response Message
 
             try {
                 String responseMessage = response.jsonPath().getString("responseMessage");
-                assertEquals(this.response.getResponseMsg(), responseMessage, "Response message mismatch");
+                assertEquals(responseMessage, this.response.getResponseMsg(), "Response message mismatch");
             }
             catch (AssertionError e) {
                 System.out.println(e);
@@ -140,8 +182,8 @@ public class AppGenericFunc {
             // Validate Response Structure/Content (non-hardcoded validation)
             assertNotNull(apiResponse, "Parsed response should not be null");
             try {
-                assertEquals(this.response.getResponseCode(), apiResponse.getResponseCode(), "Response code in parsed content mismatch");
-                assertEquals(this.response.getResponseMsg(), apiResponse.getResponseMessage(), "Response message in parsed content mismatch");
+                assertEquals(apiResponse.getResponseCode(), this.response.getResponseCode(), "Response code in parsed content mismatch");
+                assertEquals(apiResponse.getResponseMessage(), this.response.getResponseMsg(), "Response message in parsed content mismatch");
             }
             catch (AssertionError e) {
                 System.out.println(e);
@@ -152,6 +194,7 @@ public class AppGenericFunc {
             List<Product> expectedProductDetails = this.response.getProducts();
             assertEquals(expectedProductDetails.size(), apiResponse.getProducts().size(), "Number of Products should be equals to " + expectedProductDetails);
             for (Product product : apiResponse.getProducts()) {
+                validateEachProduct(product);
                 assertNotNull(product.getName(), "Product name should not be null");
                 assertNotNull(product.getPrice(), "Product price should not be null");
                 assertNotNull(product.getBrand(), "Product brand should not be null");
@@ -169,7 +212,6 @@ public class AppGenericFunc {
     }
 
     public void validateEachProduct(Product aProduct) {
-        boolean match = false;
         try {
             for(Product p:products) {
                 if(p.getId()==aProduct.getId()) {
@@ -185,6 +227,18 @@ public class AppGenericFunc {
         }
     }
 
+    public void highlightElement(WebElement element) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        // Use a JavaScript command to change the element's style
+        js.executeScript("arguments[0].style.border='3px solid red'", element);
+    }
+
+    public void hoverOverElement(By xpath) {
+        Actions actions = new Actions(driver);
+        WebElement elementToHover = driver.findElement(xpath);
+        actions.moveToElement(elementToHover).perform();
+        }
+
     public void setText(By xpath, String text) {
         WebElement textBox = driver.findElement(xpath);
         textBox.clear();
@@ -193,22 +247,23 @@ public class AppGenericFunc {
 
     public String clickOnButton(By button) {
         WebElement ele = driver.findElement(button);
+        String text = ele.getText();
         JavascriptExecutor js = (JavascriptExecutor) driver;
+        highlightElement(ele);
         js.executeScript("arguments[0].click();", ele);
-        return ele.getText();
+        return text;
     }
 
-    public String checkElementVisibility(By ele) {
+    public void checkElementVisibility(By ele) {
+        WebElement element = null;
         try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(ele));
-            if(driver.findElement(ele).isDisplayed()) {
-                System.out.println(driver.findElement(ele).getText()+" is visible");
-                return driver.findElement(ele).getText();
+            element = wait.until(ExpectedConditions.visibilityOfElementLocated(ele));
+            if(element.isDisplayed()) {
+                highlightElement(element);
             }
         }
         catch(Exception e) {
-            System.out.println(driver.findElement(ele).getText()+" not visible");
+            System.out.println(e);
         }
-        return driver.findElement(ele).getText();
     }
 }

@@ -30,4 +30,27 @@ public class ProductEndPoints {
                 .extract()
                 .response();
     }
+
+    public Response updateProductDetails(String url, Product payload) {
+        return given()
+                .contentType(ContentType.JSON)
+                .accept(ContentType.JSON)
+                .body(payload)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(200) // Validate that the response code is 200
+                .extract()
+                .response();
+    }
+
+    public Response deleteProduct(String url) {
+        Response response = given()
+                .when()
+                .delete(url)
+                .then()
+                .statusCode(200) // Validate the status code (change as per your API's response)
+                .extract().response();
+        return response;
+    }
 }
